@@ -1,0 +1,21 @@
+# Dependency directories (Berat, jangan diupload)
+node_modules/
+pnpm-lock.yaml
+yarn.lock
+
+# Build output (Hasil compile, bisa digenerate ulang)
+dist/
+build/
+
+# Environment variables (RAHASIA: Jangan upload API Key)
+.env
+
+# System files
+.DS_Store
+Thumbs.db
+npm-debug.log*
+
+# Editor directories
+.vscode/
+.idx/
+.idea/
