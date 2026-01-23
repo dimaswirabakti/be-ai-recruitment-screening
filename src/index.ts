@@ -3,7 +3,7 @@ import cors from "cors";
 import morgan from "morgan";
 import swaggerUi from "swagger-ui-express";
 import swaggerJsdoc from "swagger-jsdoc";
-import { PORT } from "./utils/env";
+import { PORT, NODE_ENV } from "./utils/env";
 import jobRoutes from "./routes/jobRoutes";
 
 const app = express();
@@ -11,23 +11,28 @@ const app = express();
 // Global Middlewares
 app.use(cors());
 app.use(express.json());
-app.use(morgan("dev"));
+
+if (NODE_ENV === "production") {
+  app.use(morgan("tiny"));
+} else {
+  app.use(morgan("dev"));
+}
 
 // Swagger Configuration
 const swaggerOptions = {
   definition: {
     openapi: "3.0.0",
     info: {
-      title: "AI Recruitment Screening API & Talent Matching",
+      title: "AI Recruitment Screening & Talent Matching Platform",
       version: "1.0.0",
-      description: "API for screening candidates using AI",
+      description: "API for screening candidates using Gemini AI",
     },
     servers: [
       {
-        url: `http://localhost:${PORT}`,
+        url: `http://localhost:3000`,
       },
       {
-        url: `https://server.production.onrender.com`,
+        url: `https://ai-recruitment-api-60312089512.asia-southeast2.run.app`,
       },
     ],
     components: {
