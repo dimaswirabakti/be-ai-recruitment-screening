@@ -26,7 +26,84 @@ const swaggerOptions = {
       {
         url: `http://localhost:${PORT}`,
       },
+      {
+        url: `https://server.production.onrender.com`,
+      },
     ],
+    components: {
+      securitySchemes: {
+        BearerAuth: {
+          type: "http",
+          scheme: "bearer",
+          bearerFormat: "JWT",
+        },
+      },
+      schemas: {
+        CreateJobInput: {
+          type: "object",
+          required: ["title", "quota", "requiredSkills", "cvUrls"],
+          properties: {
+            title: {
+              type: "string",
+              description: "The job title",
+              example: "Junior Backend Engineer",
+            },
+            quota: {
+              type: "integer",
+              description: "Number of candidates to hire",
+              example: 2,
+            },
+            requiredSkills: {
+              type: "array",
+              items: {
+                type: "string",
+              },
+              description: "List of required skills",
+              example: ["Node.js", "Express", "PostgreSQL"],
+            },
+            cvUrls: {
+              type: "array",
+              items: {
+                type: "string",
+              },
+              description: "List of CV URLs to analyze",
+              example: [
+                "https://example.com/cv1.pdf",
+                "https://example.com/cv2.pdf",
+              ],
+            },
+          },
+        },
+        JobResponse: {
+          type: "object",
+          properties: {
+            id: {
+              type: "string",
+            },
+            ownerId: {
+              type: "string",
+            },
+            title: {
+              type: "string",
+            },
+            status: {
+              type: "string",
+              enum: ["PROCESSING", "COMPLETED"],
+            },
+            totalCandidates: {
+              type: "integer",
+            },
+            createdAt: {
+              type: "object",
+              properties: {
+                _seconds: { type: "integer" },
+                _nanoseconds: { type: "integer" },
+              },
+            },
+          },
+        },
+      },
+    },
   },
   apis: ["./src/routes/*.ts"],
 };
@@ -36,11 +113,6 @@ app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerDocs));
 
 // Routes
 app.use("/jobs", jobRoutes);
-
-// Health Check
-app.get("/health", (req, res) => {
-  res.json({ status: "OK", timestamp: new Date().toISOString() });
-});
 
 // Server Start
 app.listen(PORT, () => {
