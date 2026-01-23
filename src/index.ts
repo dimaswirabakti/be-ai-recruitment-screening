@@ -107,6 +107,29 @@ const swaggerOptions = {
             },
           },
         },
+        CandidateResponse: {
+          type: "object",
+          properties: {
+            id: { type: "string" },
+            jobId: { type: "string" },
+            name: { type: "string" },
+            score: { type: "integer" },
+            skills: {
+              type: "array",
+              items: { type: "string" },
+            },
+            summary: { type: "string" },
+            explanation: { type: "string" },
+            cvUrl: { type: "string" },
+            analyzedAt: {
+              type: "object",
+              properties: {
+                _seconds: { type: "integer" },
+                _nanoseconds: { type: "integer" },
+              },
+            },
+          },
+        },
       },
     },
   },

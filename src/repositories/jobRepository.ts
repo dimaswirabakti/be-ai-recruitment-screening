@@ -18,7 +18,7 @@ export const createJob = async (jobData: CreateJobInput): Promise<Job> => {
 };
 
 export const saveCandidateResult = async (
-  candidateData: SaveCandidateInput
+  candidateData: SaveCandidateInput,
 ): Promise<Candidate> => {
   const docRef = await db.collection("candidates").add({
     ...candidateData,
@@ -26,4 +26,40 @@ export const saveCandidateResult = async (
   });
 
   return { id: docRef.id, ...candidateData };
+};
+
+export const getJobsByOwner = async (ownerId: string): Promise<Job[]> => {
+  const snapshot = await db
+    .collection("jobs")
+    .where("ownerId", "==", ownerId)
+    .get();
+
+  return snapshot.docs.map((doc) => doc.data() as Job);
+};
+
+export const getJobById = async (jobId: string): Promise<Job | null> => {
+  const doc = await db.collection("jobs").doc(jobId).get();
+  if (!doc.exists) {
+    return null;
+  }
+  return doc.data() as Job;
+};
+
+export const getCandidatesByJobId = async (
+  jobId: string,
+): Promise<Candidate[]> => {
+  const snapshot = await db
+    .collection("candidates")
+    .where("jobId", "==", jobId)
+    .orderBy("score", "desc")
+    .get();
+
+  return snapshot.docs.map((doc) => doc.data() as Candidate);
+};
+
+export const updateJobStatus = async (
+  jobId: string,
+  status: "PROCESSING" | "COMPLETED",
+): Promise<void> => {
+  await db.collection("jobs").doc(jobId).update({ status });
 };

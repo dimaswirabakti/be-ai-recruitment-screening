@@ -34,3 +34,41 @@ export const createJobHandler = async (
     res.status(500).json({ error: "Internal Server Error" });
   }
 };
+
+export const getAllJobsHandler = async (
+  req: AuthRequest,
+  res: Response,
+): Promise<void> => {
+  try {
+    if (!req.user || !req.user.uid) {
+      res.status(401).json({ error: "Unauthorized" });
+      return;
+    }
+
+    const jobs = await jobService.getJobsByUser(req.user.uid);
+    res.status(200).json({ data: jobs });
+  } catch (error) {
+    console.error("Error fetching jobs:", error);
+    res.status(500).json({ error: "Internal Server Error" });
+  }
+};
+
+export const getJobByIdHandler = async (
+  req: AuthRequest,
+  res: Response,
+): Promise<void> => {
+  try {
+    const id = req.params.id as string;
+
+    const result = await jobService.getJobDetails(id);
+    if (!result) {
+      res.status(404).json({ error: "Job not found" });
+      return;
+    }
+
+    res.status(200).json({ data: result });
+  } catch (error) {
+    console.error("Error fetching job details:", error);
+    res.status(500).json({ error: "Internal Server Error" });
+  }
+};

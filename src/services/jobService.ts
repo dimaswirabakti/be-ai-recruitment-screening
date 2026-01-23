@@ -5,7 +5,7 @@ import { Job, Candidate, AnalysisResult } from "../types";
 export const processCandidates = async (
   jobId: string,
   jobContext: string,
-  cvUrls: string[]
+  cvUrls: string[],
 ): Promise<void> => {
   console.log(`Starting AI processing for Job ${jobId}`);
 
@@ -15,7 +15,7 @@ export const processCandidates = async (
     try {
       const result: AnalysisResult | null = await aiService.analyzeCandidate(
         url,
-        jobContext
+        jobContext,
       );
 
       if (result) {
@@ -36,19 +36,20 @@ export const processCandidates = async (
     } catch (error) {
       console.error(
         `Error processing candidate for Job ${jobId}, URL: ${url}`,
-        error
+        error,
       );
       // Continue to next candidate
     }
   }
 
+  await jobRepository.updateJobStatus(jobId, "COMPLETED");
   console.log(`Job ${jobId} processing completed`);
 };
 
 export const createNewJob = async (
   userId: string,
   jobInput: { title: string; quota: number; requiredSkills: string[] },
-  cvUrls: string[]
+  cvUrls: string[],
 ): Promise<Job> => {
   const jobData = {
     ownerId: userId,
@@ -71,4 +72,20 @@ export const createNewJob = async (
   });
 
   return job;
+};
+
+export const getJobsByUser = async (userId: string): Promise<Job[]> => {
+  return jobRepository.getJobsByOwner(userId);
+};
+
+export const getJobDetails = async (
+  jobId: string,
+): Promise<{ job: Job; candidates: Candidate[] } | null> => {
+  const job = await jobRepository.getJobById(jobId);
+  if (!job) {
+    return null;
+  }
+
+  const candidates = await jobRepository.getCandidatesByJobId(jobId);
+  return { job, candidates };
 };

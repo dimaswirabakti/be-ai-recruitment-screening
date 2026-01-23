@@ -1,6 +1,10 @@
 import { Router } from "express";
 import { authenticate } from "../middlewares/auth";
-import { createJobHandler } from "../controllers/jobController";
+import {
+  createJobHandler,
+  getAllJobsHandler,
+  getJobByIdHandler,
+} from "../controllers/jobController";
 
 const router = Router();
 
@@ -34,7 +38,83 @@ const router = Router();
  *         description: Unauthorized (Missing/Invalid Token)
  *       500:
  *         description: Internal Server Error
+ *   get:
+ *     summary: Get all jobs for the authenticated user
+ *     tags: [Jobs]
+ *     security:
+ *       - BearerAuth: []
+ *     responses:
+ *       200:
+ *         description: List of jobs retrieved successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 data:
+ *                   type: array
+ *                   items:
+ *                     $ref: '#/components/schemas/JobResponse'
+ *       401:
+ *         description: Unauthorized
+ *       500:
+ *         description: Internal Server Error
  */
 router.post("/", authenticate, createJobHandler);
+router.get("/", authenticate, getAllJobsHandler);
+
+/**
+ * @swagger
+ * /jobs/{id}:
+ *   get:
+ *     summary: Get job details and candidate list (sorted by score)
+ *     tags: [Jobs]
+ *     security:
+ *       - BearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: The job ID
+ *     responses:
+ *       200:
+ *         description: Job details and candidates retrieved successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 data:
+ *                   type: object
+ *                   properties:
+ *                     job:
+ *                       $ref: '#/components/schemas/JobResponse'
+ *                     candidates:
+ *                       type: array
+ *                       items:
+ *                         type: object
+ *                         properties:
+ *                           id:
+ *                             type: string
+ *                           name:
+ *                             type: string
+ *                           score:
+ *                             type: integer
+ *                           skills:
+ *                             type: array
+ *                             items:
+ *                               type: string
+ *                           summary:
+ *                             type: string
+ *       404:
+ *         description: Job not found
+ *       401:
+ *         description: Unauthorized
+ *       500:
+ *         description: Internal Server Error
+ */
+router.get("/:id", authenticate, getJobByIdHandler);
 
 export default router;
