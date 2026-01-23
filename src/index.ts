@@ -1,52 +1,48 @@
 import express from "express";
 import cors from "cors";
-import dotenv from "dotenv";
+import morgan from "morgan";
 import swaggerUi from "swagger-ui-express";
 import swaggerJsdoc from "swagger-jsdoc";
-
-dotenv.config();
+import { PORT } from "./utils/env";
+import jobRoutes from "./routes/jobRoutes";
 
 const app = express();
-const port = process.env.PORT || 3000;
 
-// Middleware
+// Global Middlewares
 app.use(cors());
 app.use(express.json());
+app.use(morgan("dev"));
 
-// Swagger Setup
+// Swagger Configuration
 const swaggerOptions = {
   definition: {
     openapi: "3.0.0",
     info: {
-      title: "AI Recruitment API",
+      title: "AI Recruitment Screening API & Talent Matching",
       version: "1.0.0",
-      description: "API for AI Recruitment Screening Platform",
+      description: "API for screening candidates using AI",
     },
     servers: [
       {
-        url: `http://localhost:${port}`,
-        description: "Local server",
+        url: `http://localhost:${PORT}`,
       },
     ],
   },
-  apis: ["./src/routes/*.ts"], // Path to the API docs
+  apis: ["./src/routes/*.ts"],
 };
 
-const swaggerSpec = swaggerJsdoc(swaggerOptions);
-app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerSpec));
+const swaggerDocs = swaggerJsdoc(swaggerOptions);
+app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerDocs));
+
+// Routes
+app.use("/jobs", jobRoutes);
 
 // Health Check
 app.get("/health", (req, res) => {
-  res.json({
-    status: "OK",
-    timestamp: new Date(),
-  });
+  res.json({ status: "OK", timestamp: new Date().toISOString() });
 });
 
-// Start Server
-app.listen(port, () => {
-  console.log(`Server is running on port ${port}`);
-  console.log(`Swagger docs available at http://localhost:${port}/api-docs`);
+// Server Start
+app.listen(PORT, () => {
+  console.log(`Server running on port ${PORT}`);
 });
-
-export default app;
