@@ -5,6 +5,7 @@ import {
   getAllJobsHandler,
   getJobByIdHandler,
 } from "../controllers/jobController";
+import { aiTriggerLimiter, generalLimiter } from "../middlewares/rateLimiter";
 
 const router = Router();
 
@@ -60,8 +61,8 @@ const router = Router();
  *       500:
  *         description: Internal Server Error
  */
-router.post("/", authenticate, createJobHandler);
-router.get("/", authenticate, getAllJobsHandler);
+router.post("/", authenticate, aiTriggerLimiter, createJobHandler);
+router.get("/", authenticate, generalLimiter, getAllJobsHandler);
 
 /**
  * @swagger
@@ -115,6 +116,6 @@ router.get("/", authenticate, getAllJobsHandler);
  *       500:
  *         description: Internal Server Error
  */
-router.get("/:id", authenticate, getJobByIdHandler);
+router.get("/:id", authenticate, generalLimiter, getJobByIdHandler);
 
 export default router;

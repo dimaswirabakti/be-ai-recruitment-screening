@@ -9,6 +9,7 @@ import jobRoutes from "./routes/jobRoutes";
 const app = express();
 
 // Global Middlewares
+app.set("trust proxy", 1);
 app.use(cors());
 app.use(express.json());
 
